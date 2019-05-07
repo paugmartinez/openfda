@@ -14,10 +14,9 @@ PORT = 8000
 url='/drug/label.json'
 
 @app.route('/searchDrug')
-def get_drugs():
+def searchdrugs():
     drugs=request.args.get('active_ingredient')
     max=request.args.get('limit')
-
     if max:
         limit=max
     else:
@@ -26,10 +25,8 @@ def get_drugs():
     headers={'User-Agent':'http-client'}
     print(drugs)
     #https://api.fda.gov/drug/label.json?search=active_ingredient:aspirin&limit=10
-
     conn=http.client.HTTPSConnection('api.fda.gov')#establecemos connexion
     conn.request('GET',url+'?limit='+str(limit)+'&search=active_ingredient:'+drugs,None, headers)#solicitamos la busqueda de una empresa
-
     r=conn.getresponse()
     print(r.status,r.reason)
     respuesta=r.read().decode('utf-8')
@@ -68,7 +65,6 @@ def searchCompanies():
         limit=max
     else:
         limit=10
-
     headers={'User-Agent':'http-client'}
     print(limit)
     conn=http.client.HTTPSConnection('api.fda.gov')#establecemos connexion
@@ -93,10 +89,7 @@ def searchCompanies():
             #de vuelta sobre la compañia buscada
         except:
             mensaje+='<li>'+'desconocido'
-
-    #cerramos el mensaje
     conn.close()
-
     return mensaje
 
 
@@ -109,9 +102,8 @@ def listaDrugs():
     r=conn.getresponse()
     print(r.status,r.reason)
     respuesta=r.read().decode('utf-8')
-    conn.close()
+    
     data=json.loads(respuesta)
-
     mensaje='''<!doctype html>
                 <html>
                   <title>drugs list </title>
@@ -119,7 +111,6 @@ def listaDrugs():
                     <p>esta es una lista de drogas</p>
                     </body>
                 </html>
-
                 '''
     limit=data['meta']['results']['limit']
     for i in range(0,limit):
@@ -128,8 +119,7 @@ def listaDrugs():
             mensaje += '<li>'+str(i+1)+'.'+drug
         except:
             mensaje += '<li>'+str(i+1)+'.'+'desconocido'
-
-
+    conn.close()
     return mensaje
 
 
@@ -138,14 +128,12 @@ def listaDrugs():
 def listCompanies():
     max=request.args.get('limit')
     headers={'User-Agent':'http-client'}
-
     conn=http.client.HTTPSConnection('api.fda.gov')#establecemos connexion
     conn.request('GET',url+'?limit='+str(max),None, headers)#solicitamos la busqueda de una empresa
     r=conn.getresponse()
     print(r.status,r.reason)
     respuesta=r.read().decode('utf-8')
     data=json.loads(respuesta)
-
     mensaje='''<!doctype html>
                 <html>
 
@@ -154,19 +142,15 @@ def listCompanies():
                     <p>esta es una lista de compañias</p>
                     </body>
                 </html>
-
                 '''
     max=data['meta']['results']['limit']
     for i in range(0,max):
         try:
             comp=data['results'][i]['openfda']['company'][0]
             mensaje += '<li>'+str(i+1)+'.'+comp
-
         except:
             mensaje += '<li>'+str(i+1)+'.'+'desconocido'
-
-
-    #terminamos el mensaje
+    
     conn.close()
     return mensaje
 
@@ -186,7 +170,6 @@ def list_Warnings():
                 <html>
                   <body style= "background-color:#85E3FF;">
                     <p>esta es una lista de compañias</p>
-
                 '''
     for i in range(0,data['meta']['results']['limit']):
         try:
